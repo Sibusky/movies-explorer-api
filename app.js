@@ -35,7 +35,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/', (req, res) => {
   console.log(req.body);
   res.json(req.headers);
-})
+});
 
 app.listen(PORT, () => {
   console.log('App started and listen port', PORT);
