@@ -7,18 +7,15 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 // Импортирую классы ошибок
 
 // Возвращаю текущего пользователя
-module.exports.getCurrentUser = async (req, res, next) => {
-  try {
-    // const { email, password, name, _id } = req.body;
-
-    // const users = await User.find({})
-    const user = await User.findById(req.user._id)
-    console.log('123')
-    res.status(200).json(user)
-  } catch (err) {
-    res.status(500).json(err.message)
-  }
-}
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        res.send('Пользователь не нашёлся');
+      }
+      return res.status(200).send(user);
+    });
+};
 
 // Создаю пользователя
 module.exports.createUser = (req, res, next) => {
@@ -38,12 +35,12 @@ module.exports.createUser = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(err.message);
       } else if (err.code === 11000) {
-        next(err.message)
+        next(err.message);
       } else {
         next();
       }
     });
-}
+};
 
 // Аутентификация пользователя
 

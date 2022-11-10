@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const { celebrate, Joi, errors } = require('celebrate');
-const { createUser } = require('./controllers/users')
+const { createUser } = require('./controllers/users');
 const usersRouter = require('./routes/users');
 
 const app = express();
@@ -30,7 +30,6 @@ const loginValidation = celebrate({
     password: Joi.string().required().min(8),
   }),
 });
-
 
 // Превращаю тело запроса в удобный формат JSON
 app.use(bodyParser.json());
