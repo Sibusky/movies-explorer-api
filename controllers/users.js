@@ -5,15 +5,25 @@ const User = require('../models/users');
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 // Импортирую классы ошибок
+const BadRequestError = require('../errors/bad-request-err');
+const ConflictError = require('../errors/conflict-err');
+const NotFoundError = require('../errors/not-found-err');
 
 // Возвращаю текущего пользователя
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        res.send('Пользователь не нашёлся');
+        throw new NotFoundError('Пользователя с таким _id не существует');
       }
       return res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        next(new BadRequestError('Пользователь по указанному _id не найден'));
+      } else {
+        next(err);
+      }
     });
 };
 
@@ -33,11 +43,11 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(err.message);
+        next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
       } else if (err.code === 11000) {
-        next(err.message);
+        next(new ConflictError('Этот адрес почты уже зарегистрирован'));
       } else {
-        next();
+        next(err);
       }
     });
 };
@@ -75,7 +85,7 @@ module.exports.updateProfile = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(res.send('Ты передал некорректные данные'));
+        next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
       } else {
         next(err);
       }

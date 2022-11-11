@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-// const UnauthorizedError = require('../errors/unauthorized-err');
+const UnauthorizedError = require('../errors/unauthorized-err');
 
 module.exports = (req, res, next) => {
   // достаю авторизационный заголовок
@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
 
   // убеждаюсь, что он есть или начинается с Bearer
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw res.send({ message: 'Нет заголовка авторизации' });
+    throw new UnauthorizedError('Отсутствует заголовок авторизации');
   }
 
   // извлекаю токен
@@ -23,7 +23,7 @@ module.exports = (req, res, next) => {
     payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
   } catch (err) {
     // отправляю ошибку, если не получилось
-    next(res.send({ message: 'Нужно сначала авторизоваться!!!' }));
+    next(new UnauthorizedError('Необходима авторизация'));
   }
 
   req.user = payload; // записываю пейлоуд в объект запроса

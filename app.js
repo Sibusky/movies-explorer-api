@@ -10,6 +10,8 @@ const usersRouter = require('./routes/users');
 const app = express();
 const { PORT = 3000 } = process.env;
 
+// const NotFoundError = require('./errors/not-found-err');
+
 // Подключаю БД
 mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
   useNewUrlParser: true,
@@ -58,6 +60,7 @@ app.use('/users', auth, usersRouter);
 // Подключаю логгер ошибок
 
 // Мидлвара celebrate для отправки ошибки пользователю
+app.use(errors());
 
 // Обработчик ошибок
 
@@ -71,4 +74,4 @@ app.listen(PORT, () => {
 });
 
 // Вопросы
-// const { NODE_ENV, JWT_SECRET } = process.env;
+//
