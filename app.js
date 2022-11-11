@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const { celebrate, Joi, errors } = require('celebrate');
-const { createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
+const { createUser, login } = require('./controllers/users');
 const usersRouter = require('./routes/users');
 
 const app = express();
@@ -41,13 +43,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Краш-тест. После код-ревью удалить.
 
-// Роуты не требующие авторизации: логин и регистрация ПОДКЛЮЧИТЬ ВАЛИДАЦИЮ
+// Роуты не требующие авторизации: логин и регистрация
 app.post('/signup', bodyValidation, createUser);
+app.post('/signin', loginValidation, login);
 
 // Роут авторизации
+app.use(auth);
 
 // Роуты, требующие авторизации ДОБАВИТЬ АВТОРИЗАЦИЮ
-app.use('/users', usersRouter);
+app.use('/users', auth, usersRouter);
 
 // Роут на ненайденную страницу
 
@@ -67,4 +71,4 @@ app.listen(PORT, () => {
 });
 
 // Вопросы
-// После подключения валидации, не работает минимальная длина пароля
+// const { NODE_ENV, JWT_SECRET } = process.env;

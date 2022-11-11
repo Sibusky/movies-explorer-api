@@ -11,12 +11,8 @@ const updateProfileValidation = celebrate({
   }),
 });
 
-// Валидация обновления аватара
-
-// Валидация id пользователя
-
 // Возвращаю информацию о пользователе
-router.get('/me', getCurrentUser)
+router.get('/me', getCurrentUser);
 
 // Обновляю информацию о пользователе
 // router.patch('/me', updateProfileValidation, updateProfile)
