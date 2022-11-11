@@ -59,3 +59,25 @@ module.exports.login = (req, res, next) => {
 };
 
 // Обновление профиля
+module.exports.updateProfile = (req, res, next) => {
+  User.findByIdAndUpdate(req.user._id, {
+    email: req.body.email,
+    name: req.body.name,
+  }, {
+    new: true, // обработчик then получает на вход обновлённую запись
+    runValidators: true, // запуск валидации
+  })
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь с указанным _id не найден');
+      }
+      return res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(res.send('Ты передал некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
+};
