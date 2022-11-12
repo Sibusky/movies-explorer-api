@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const { celebrate, Joi, errors } = require('celebrate');
+const cors = require('cors');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 const usersRouter = require('./routes/users');
@@ -40,11 +41,23 @@ const loginValidation = celebrate({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Разрешаю CORS
+// Разрешаю CORS ИЗМЕНИТЬ НА ТЕКУЩИЕ АДРЕСА СЕРВЕРА ФРОНТЕНДА
+app.use(cors({
+  origin: ['http://localhost:3000',
+    'http://asmirnov.students.nomoredomains.icu',
+    'https://asmirnov.students.nomoredomains.icu',
+  ],
+  methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
+}));
 
 // Подключаю логгер запросов
 
 // Краш-тест. После код-ревью удалить.
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 // Роуты не требующие авторизации: логин и регистрация
 app.post('/signup', bodyValidation, createUser);
@@ -65,16 +78,21 @@ app.use('/*', (req, res, next) => next(new NotFoundError('Страница не 
 // Мидлвара celebrate для отправки ошибки пользователю
 app.use(errors());
 
-// Обработчик ошибок
+// Централизованный обработчик ошибок
+app.use((err, req, res, next) => {
+  // если у ошибки нет статуса, выставляю 500
+  const { statusCode = 500, message } = err;
 
-app.post('/', (req, res) => {
-  console.log(req.body);
-  res.json(req.headers);
+  res
+    .status(statusCode)
+    .send({
+      // проверяю статус и выставляю сообщение в зависимости от него
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
 });
 
 app.listen(PORT, () => {
   console.log('App started and listen port', PORT);
 });
-
-// Вопросы
-//
