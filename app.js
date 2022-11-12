@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const { celebrate, Joi, errors } = require('celebrate');
 const cors = require('cors');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 const usersRouter = require('./routes/users');
@@ -51,6 +52,7 @@ app.use(cors({
 }));
 
 // Подключаю логгер запросов
+app.use(requestLogger);
 
 // Краш-тест. После код-ревью удалить.
 app.get('/crash-test', () => {
@@ -74,11 +76,13 @@ app.use('/movies', auth, moviesRouter);
 app.use('/*', (req, res, next) => next(new NotFoundError('Страница не найдена')));
 
 // Подключаю логгер ошибок
+app.use(errorLogger);
 
 // Мидлвара celebrate для отправки ошибки пользователю
 app.use(errors());
 
 // Централизованный обработчик ошибок
+// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляю 500
   const { statusCode = 500, message } = err;
