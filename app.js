@@ -1,13 +1,17 @@
 require('dotenv').config();
 const express = require('express');
+const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const app = express();
 const { NODE_ENV, DB_CONNECTION_STRING, PORT = 3000 } = process.env;
+
+const app = express();
+
+app.use(helmet());
 
 // Подключаю БД
 mongoose.connect(NODE_ENV === 'production' ? DB_CONNECTION_STRING : 'mongodb://localhost:27017/moviesdb', {
