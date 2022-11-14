@@ -66,7 +66,9 @@ module.exports.login = (req, res, next) => {
       );
       res.send({ token });
     })
-    .catch((next(new UnauthorizedError('Email или пароль не совпадают'))));
+    .catch(() => {
+      next(new UnauthorizedError('Введённые данные не верны'));
+    });
 };
 
 // Обновление профиля

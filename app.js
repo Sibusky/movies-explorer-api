@@ -7,12 +7,10 @@ const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
-const { NODE_ENV, PORT = 3000, DB_CONNECTION_STRING } = process.env;
-
-const NotFoundError = require('./errors/not-found-err');
+const { NODE_ENV, DB_CONNECTION_STRING, PORT = 3000 } = process.env;
 
 // Подключаю БД
-mongoose.connect(NODE_ENV === 'production' ? DB_CONNECTION_STRING : 'mongodb://localhost:27017/bitfilmsdb', {
+mongoose.connect(NODE_ENV === 'production' ? DB_CONNECTION_STRING : 'mongodb://localhost:27017/moviesdb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -40,14 +38,8 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-// Роуты
-app.use(require('./routes/signup'));
-app.use(require('./routes/signin'));
-app.use(require('./routes/users'));
-app.use(require('./routes/movies'));
-
-// Роут на ненайденную страницу
-app.use('/*', (req, res, next) => next(new NotFoundError('Страница не найдена')));
+// Роуты из index.js из папки роутов
+app.use(require('./routes/index'));
 
 // Подключаю логгер ошибок
 app.use(errorLogger);
