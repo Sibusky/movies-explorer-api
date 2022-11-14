@@ -2,13 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const { celebrate, Joi, errors } = require('celebrate');
+const { errors } = require('celebrate');
 const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const auth = require('./middlewares/auth');
-const { createUser, login } = require('./controllers/users');
-const usersRouter = require('./routes/users');
-const moviesRouter = require('./routes/movies');
+// const auth = require('./middlewares/auth');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -19,23 +16,6 @@ const NotFoundError = require('./errors/not-found-err');
 mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-});
-
-// Валидирую данные для регистрации, используя celebrate
-const bodyValidation = celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-    name: Joi.string().min(2).max(30),
-  }),
-});
-
-// Валидирую данные для логина, используя celebrate
-const loginValidation = celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
 });
 
 // Превращаю тело запроса в удобный формат JSON
@@ -61,16 +41,11 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-// Роуты не требующие авторизации: логин и регистрация
-app.post('/signup', bodyValidation, createUser);
-app.post('/signin', loginValidation, login);
-
-// Роут авторизации
-app.use(auth);
-
-// Роуты, требующие авторизации
-app.use('/users', auth, usersRouter);
-app.use('/movies', auth, moviesRouter);
+// Роуты
+app.use(require('./routes/signup'));
+app.use(require('./routes/signin'));
+app.use(require('./routes/users'));
+app.use(require('./routes/movies'));
 
 // Роут на ненайденную страницу
 app.use('/*', (req, res, next) => next(new NotFoundError('Страница не найдена')));
@@ -82,8 +57,7 @@ app.use(errorLogger);
 app.use(errors());
 
 // Централизованный обработчик ошибок
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
+app.use((err, res) => {
   // если у ошибки нет статуса, выставляю 500
   const { statusCode = 500, message } = err;
 
