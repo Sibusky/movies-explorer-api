@@ -5,15 +5,14 @@ const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-// const auth = require('./middlewares/auth');
 
 const app = express();
-const { PORT = 3000 } = process.env;
+const { NODE_ENV, PORT = 3000, DB_CONNECTION_STRING } = process.env;
 
 const NotFoundError = require('./errors/not-found-err');
 
 // Подключаю БД
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
+mongoose.connect(NODE_ENV === 'production' ? DB_CONNECTION_STRING : 'mongodb://localhost:27017/bitfilmsdb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -22,11 +21,11 @@ mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Разрешаю CORS ИЗМЕНИТЬ НА ТЕКУЩИЕ АДРЕСА СЕРВЕРА ФРОНТЕНДА
+// Разрешаю CORS
 app.use(cors({
   origin: ['http://localhost:3000',
-    'http://asmirnov.students.nomoredomains.icu',
-    'https://asmirnov.students.nomoredomains.icu',
+    'https://bitfilms.smirnov.nomoredomains.icu/',
+    'http://bitfilms.smirnov.nomoredomains.icu/',
   ],
   methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
 }));

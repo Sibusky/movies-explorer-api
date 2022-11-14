@@ -8,6 +8,7 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const BadRequestError = require('../errors/bad-request-err');
 const ConflictError = require('../errors/conflict-err');
 const NotFoundError = require('../errors/not-found-err');
+const UnauthorizedError = require('../errors/unauthorized-err');
 
 // Возвращаю текущего пользователя
 module.exports.getCurrentUser = (req, res, next) => {
@@ -65,7 +66,7 @@ module.exports.login = (req, res, next) => {
       );
       res.send({ token });
     })
-    .catch(next);
+    .catch((next(new UnauthorizedError('Email или пароль не совпадают'))));
 };
 
 // Обновление профиля
@@ -86,6 +87,8 @@ module.exports.updateProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+      } else if (err.code === 11000) {
+        next(new ConflictError('Этот адрес почты уже зарегистрирован'));
       } else {
         next(err);
       }

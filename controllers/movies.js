@@ -61,8 +61,8 @@ module.exports.deleteMovie = (req, res, next) => {
       } else if (movie.owner.toString() !== req.user._id) {
         throw new ForbiddenError('Можно удалять только свой фильм');
       }
-      movie.remove()
-        .then(res.status(200).send(`Удалён фильм под названием ${movie.nameEN} режиссёра ${movie.director}`));
+      return movie.remove()
+        .then(res.status(200).send({ message: `Удалён фильм под названием ${movie.nameEN} режиссёра ${movie.director}` }));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
