@@ -14,7 +14,7 @@ const app = express();
 app.use(helmet());
 
 // Подключаю БД
-mongoose.connect(NODE_ENV === 'production' ? DB_CONNECTION_STRING : 'mongodb://localhost:27017/moviesdb', {
+mongoose.connect(NODE_ENV === 'production' ? DB_CONNECTION_STRING : 'mongodb://localhost:27017/dev-moviesdb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
