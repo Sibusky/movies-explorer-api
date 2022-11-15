@@ -52,7 +52,7 @@ app.use(errorLogger);
 app.use(errors());
 
 // Централизованный обработчик ошибок
-app.use((err, res) => {
+app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляю 500
   const { statusCode = 500, message } = err;
 
@@ -64,6 +64,7 @@ app.use((err, res) => {
         ? 'На сервере произошла ошибка'
         : message,
     });
+  next();
 });
 
 app.listen(PORT, () => {
