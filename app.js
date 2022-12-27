@@ -7,7 +7,7 @@ const { errors } = require('celebrate');
 const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { NODE_ENV, DB_CONNECTION_STRING, PORT = 3000 } = process.env;
+const { NODE_ENV, DB_CONNECTION_STRING, PORT = 3001 } = process.env;
 
 const app = express();
 
@@ -26,8 +26,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Разрешаю CORS
 app.use(cors({
   origin: ['http://localhost:3000',
-    'https://bitfilms.smirnov.nomoredomains.icu/',
-    'http://bitfilms.smirnov.nomoredomains.icu/',
+    'https://bitfilms.smirnov.nomoredomains.icu',
+    'http://bitfilms.smirnov.nomoredomains.icu',
   ],
   methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
 }));
